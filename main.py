@@ -1,5 +1,4 @@
 import pandas as pd
-from tabulate import tabulate
 
 
 def read_csv(path):
@@ -22,12 +21,12 @@ def read_csv(path):
     df2['Description'] = df2['Truncated Description']
     del df2['Truncated Description']
 
-
-
-    print(df2)
+    return df2
     
 
 
 path = 'data/historia_2023-05-16_04109025900000000153544523.csv'
 
-read_csv(path)
+data = read_csv(path)
+
+print(data)
