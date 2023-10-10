@@ -28,7 +28,7 @@ def read_csv(path, bank):
         del df2['Truncated Description']
 
         df2.loc[:,'Currency'] = 'PLN'
-        df2.loc[:,'Bank'] = 'UBS'
+        df2.loc[:,'Bank'] = 'Santander'
 
     elif bank == 'ubs':
         
@@ -39,7 +39,7 @@ def read_csv(path, bank):
         # del df2['Sector']
 
         df2.loc[:,'Currency'] = 'CHF'
-        df2.loc[:,'Bank'] = 'Santander'
+        df2.loc[:,'Bank'] = 'UBS'
 
 
     elif bank == 'revolut':
@@ -54,6 +54,10 @@ def read_csv(path, bank):
 
     # remove useless rows without any transaction amounts
     df2 = df2.dropna(subset=['Amount'])
+
+    # remove positive transactions (incoming transfers) to not be accounted in expenses --> accumulate seperately as "INCOME"
+    # add the absolut value of transactions (meaning expenses are not a negative number but a positive one that sums up)
+    df2['Amount'] = df2['Amount'].apply(lambda x: abs(float(x)))
 
     return df2
 

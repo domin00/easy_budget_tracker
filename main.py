@@ -1,11 +1,23 @@
 from utils import read_csv, process_data
 import pandas as pd
 import os
+import numpy as np
 
 ### KEY FUNCTIONALITIES
 # CHECK IF BANK STATEMENT ALREADY ADDED TO MAIN DATABASE
 # APPEND DATAFRAME TO DATABASE
 # SPLIT DATAFRAME OUTPUT INTO TRANSACTIONS AND INCOMES
+
+def parse_args():
+
+
+    args = 1
+
+    return args
+
+
+
+
 
 # excel loader
 xl_file = 'finance_database.xlsx'
