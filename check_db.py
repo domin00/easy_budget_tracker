@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to the SQLite database
-conn = sqlite3.connect('my_bank_app.db')
+conn = sqlite3.connect('data/database/my_bank_app.db')
 cursor = conn.cursor()
 
 # Query to select all categories from the Categories table

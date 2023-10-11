@@ -30,6 +30,9 @@ def read_csv(path, bank):
         df2.loc[:,'Currency'] = 'PLN'
         df2.loc[:,'Bank'] = 'Santander'
 
+        # specific post-processing lines
+        df2['Amount'] = df2['Amount'].str.replace(',', '.')
+
     elif bank == 'ubs':
         
         # only copy key columns
