@@ -13,7 +13,7 @@ def read_csv(path, bank):
 
     df = pd.read_csv(path)
 
-    if bank == 'santander':
+    if bank == 'Santander':
 
         # only copy key columns
         df2 = df.iloc[: , [1, 2, 5]].copy()
@@ -33,7 +33,7 @@ def read_csv(path, bank):
         # specific post-processing lines
         df2['Amount'] = df2['Amount'].str.replace(',', '.')
 
-    elif bank == 'ubs':
+    elif bank == 'UBS':
         
         # only copy key columns
         df2 = df.iloc[:, [3, 4, 6]]
@@ -45,7 +45,7 @@ def read_csv(path, bank):
         df2.loc[:,'Bank'] = 'UBS'
 
 
-    elif bank == 'revolut':
+    elif bank == 'Revolut':
 
         df2 = None
 
