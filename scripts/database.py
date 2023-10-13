@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 def db_init():
     # Connect to the SQLite database (creates a new file if it doesn't exist)
@@ -45,14 +46,14 @@ def db_init():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Transactions (
             TransactionID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Date DATE,
-            Description TEXT,
-            Amount REAL,
-            Currency TEXT,
-            Bank TEXT,
-            CategoryID INTEGER,
+            Date DATE NOT NULL,
+            Description TEXT NOT NULL,
+            Currency TEXT NOT NULL,
+            Bank TEXT NOT NULL,
+            Amount REAL NOT NULL,
+            CategoryID INTEGER NOT NULL,
             FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
-            UNIQUE (Date, Description, Amount, Bank)
+            UNIQUE (Date, Description, Amount, Currency, Bank, CategoryID)
         )
     ''')
 
@@ -61,3 +62,43 @@ def db_init():
     conn.close()
 
 
+
+def insert_transactions(dataframe):
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect('data/database/my_bank_app.db')
+
+        # Use the to_sql method to insert the DataFrame into the "Transactions" table
+        dataframe.to_sql('Transactions', conn, if_exists='append', index=False)
+
+        print("Data inserted into the 'Transactions' table successfully.")
+
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+
+    finally:
+        # Close the database connection
+        conn.close()
+
+def get_all_transactions():
+    try:
+        # Connect to the SQLite database
+        conn = sqlite3.connect('data/database/my_bank_app.db')
+        
+        # SQL query to select all transactions from the "Transactions" table
+        query = "SELECT * FROM Transactions"
+
+        # Load data into a DataFrame using pandas.read_sql
+        transactions = pd.read_sql(query, conn)
+
+        # Close the database connection
+        conn.close()
+
+        return transactions
+
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+
+    finally:
+        # Close the database connection
+        conn.close()

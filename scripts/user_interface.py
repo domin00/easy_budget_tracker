@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 
 def display_welcome_message():
@@ -21,9 +22,28 @@ def display_transaction(transaction):
     print(f"Date: {transaction['Date']}")
     print(f"Description: {transaction['Description']}")
     print(f"Amount: {transaction['Amount']:.2f}")
-    print(f"Category: {transaction.get('Category', 'Uncategorized')}")
+    print(f"Category: {transaction.get('CategoryID', 'Uncategorized')}")
 
-def prompt_for_category():
+def prompt_for_category(supported_categories):
+    print("\n")
+    for idx, category in enumerate(supported_categories):
+        print(idx+1, ": ", category)
+
     return input("Please specify the category for this transaction: ")
 
-# You can add more user interface functions as needed.
+def display_menu():
+    print("\nMain Menu:")
+    print("1. Add New Transactions")
+    print("2. View Past Transactions")
+    print("3. Exit")
+
+def prompt_for_menu_choice():
+    return input("Please select an option (1/2/3): ")
+
+def display_transactions(transactions):
+
+    print("\nList of Transactions:")
+
+    for index, transaction in transactions.iterrows():
+        print(f"Transaction {index}:")
+        display_transaction(transaction)

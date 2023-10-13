@@ -33,7 +33,7 @@ ubs_data = 'data/invoice.csv'
 # new_data = pd.concat([data_sant, data_ubs], ignore_index=True)
 
 
-def main():
+def add_transactions():
     # Welcome message and user interaction
     user_interface.display_welcome_message()
     csv_file_path = user_interface.prompt_for_csv_file()
@@ -53,19 +53,85 @@ def main():
 
     # # Parse the CSV file and perform custom processing
     transactions = csv_processor.parse_csv(csv_file_path, bank_type)
+    transactions = transactions.groupby(['Date', 'Description', 'Currency', 'Bank'], as_index=False)['Amount'].sum()
 
-    # # List each transaction to the user for categorization
-    # TODO: load categories json and make sure given category is a allowable category
-    # for transaction in transactions:
-    #     user_interface.display_transaction(transaction)
-    #     category = user_interface.prompt_for_category()
-    #     transaction['Category'] = category
+
+    # List each transaction to the user for categorization
+    with open('data/categories.json', 'r') as file:
+        supported_categories = json.load(file)
+        category_ids = {category: index+1 for index, category in enumerate(supported_categories)}
+
+        for index, transaction in transactions.iterrows():
+
+            while True:
+                user_interface.display_transaction(transaction)
+                category = user_interface.prompt_for_category(supported_categories)
+
+                if category == '':
+                    transactions.at[index, 'Category'] = "Uncategorized"
+                    break
+
+                elif category in supported_categories:
+                    transactions.at[index, 'Category'] = category
+                    break
+
+                else:
+                    print(f"'{category}' is not a supported category. Choose from: {', '.join(supported_categories)}")
+
+
+        # dataframe post-processing for database
+        transactions = transactions[transactions['Category'] != "Uncategorized"]
+
+        transactions["CategoryID"] = transactions['Category'].map(category_ids)
+
+        transactions = transactions.drop("Category", axis = 1)
+
+        # # Sum 'Amount' for rows with the same contents in 'Date' and 'Description' columns
+        # summed_df = transactions.groupby(['Date', 'Description'], as_index=False)['Amount'].sum()
+
+        # # Merge the summed DataFrame back with the original DataFrame
+        # result_df = transactions.merge(summed_df, on=['Date', 'Description'], how='left', suffixes=('', '_sum'))
+
+        # # Rename the 'Amount_sum' column to 'Amount' and drop the '_sum' column
+        # transactions = result_df.drop(columns=['Amount']).rename(columns={'Amount_sum': 'Amount'})
+
+        # amount = transactions.pop('Amount')
+
+        # transactions.insert(2, 'Amount', amount)
+
 
     # Store transaction list in the database
     database.db_init()
-    # database.insert_transactions(transactions)
+    database.insert_transactions(transactions)
 
-    # user_interface.display_success_message("Transactions have been categorized and stored.")
+    user_interface.display_success_message("Transactions have been categorized and stored.")
+
+def view_transactions():
+    transactions = database.get_all_transactions()
+
+    if transactions.empty:
+        user_interface.display_error_message("No transactions found.")
+        return
+
+    user_interface.display_transactions(transactions)
+
+
+
+def main():
+    while True:
+        user_interface.display_menu()
+        choice = user_interface.prompt_for_menu_choice()
+  
+        if choice == "1":
+            add_transactions()
+        elif choice == "2":
+            view_transactions()
+        elif choice == "3":
+            user_interface.display_success_message("Goodbye!")
+            break
+        else:
+            user_interface.display_error_message("Invalid choice. Please select a valid option.")
+
 
 if __name__ == "__main__":
     main()
