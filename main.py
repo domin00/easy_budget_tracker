@@ -15,23 +15,6 @@ import scripts.categorization as categorization
 # APPEND DATAFRAME TO DATABASE
 # SPLIT DATAFRAME OUTPUT INTO TRANSACTIONS AND INCOMES
 
-def parse_args():
-
-
-    args = 1
-
-    return args
-
-
-# bank statement paths
-santander_data = 'data/historia_2023-05-16_04109025900000000153544523.csv'
-ubs_data = 'data/invoice.csv'
-
-# processing
-# data_sant = read_csv(santander_data, 'santander')
-# data_ubs = read_csv(ubs_data, 'ubs')
-# new_data = pd.concat([data_sant, data_ubs], ignore_index=True)
-
 
 def add_transactions():
     # Welcome message and user interaction
@@ -86,19 +69,6 @@ def add_transactions():
 
         transactions = transactions.drop("Category", axis = 1)
 
-        # # Sum 'Amount' for rows with the same contents in 'Date' and 'Description' columns
-        # summed_df = transactions.groupby(['Date', 'Description'], as_index=False)['Amount'].sum()
-
-        # # Merge the summed DataFrame back with the original DataFrame
-        # result_df = transactions.merge(summed_df, on=['Date', 'Description'], how='left', suffixes=('', '_sum'))
-
-        # # Rename the 'Amount_sum' column to 'Amount' and drop the '_sum' column
-        # transactions = result_df.drop(columns=['Amount']).rename(columns={'Amount_sum': 'Amount'})
-
-        # amount = transactions.pop('Amount')
-
-        # transactions.insert(2, 'Amount', amount)
-
 
     # Store transaction list in the database
     database.db_init()
@@ -114,6 +84,11 @@ def view_transactions():
         return
 
     user_interface.display_transactions(transactions)
+
+
+# TODO:
+# def remove_transactions()
+# def view_transactions_in_category()
 
 
 

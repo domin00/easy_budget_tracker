@@ -1,5 +1,9 @@
 import os
 import pandas as pd
+import json
+
+supported_categories = json.load('data/categories.json')
+CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
 
 def display_welcome_message():
