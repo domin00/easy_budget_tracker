@@ -83,7 +83,52 @@ def view_transactions():
         user_interface.display_error_message("No transactions found.")
         return
 
-    user_interface.display_transactions(transactions)
+    user_interface.display_view_menu()
+    choice = user_interface.prompt_for_view_menu_choice()
+
+    if choice == "1":
+        view_by_category(transactions)
+    elif choice == "2":
+        view_by_month(transactions)
+    elif choice == "3":
+        #view yearly summary where category vs month
+        return
+    elif choice == "4":
+        user_interface.display_transactions(transactions)
+    else:
+        user_interface.display_error_message("Invalid choice. Please select a valid option.")
+
+def view_by_category(transactions):
+    # Get unique categories
+    categories = transactions['CategoryID'].unique()
+
+    # Display categories and prompt for selection
+    user_interface.display_categories(categories)
+    selected_category = user_interface.prompt_for_category_selection(categories)
+
+    # Filter transactions by selected category
+    category_transactions = transactions[transactions['CategoryID'] == selected_category]
+
+    # Display transactions for the selected category
+    user_interface.display_transactions(category_transactions)
+
+def view_by_month(transactions):
+    # Extract months from the 'Date' column
+    transactions['Month'] = pd.to_datetime(transactions['Date']).dt.strftime('%Y-%m')
+
+    # Get unique months
+    months = transactions['Month'].unique()
+
+    # Display months and prompt for selection
+    user_interface.display_months(months)
+    selected_month = user_interface.prompt_for_month_selection(months)
+
+    # Filter transactions by selected month
+    month_transactions = transactions[transactions['Month'] == selected_month]
+
+    # Display transactions for the selected month
+    user_interface.display_transactions(month_transactions)
+
 
 
 # TODO:

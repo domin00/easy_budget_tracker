@@ -2,7 +2,8 @@ import os
 import pandas as pd
 import json
 
-supported_categories = json.load('data/categories.json')
+with open('data/categories.json', 'r') as file:
+    supported_categories = json.load(file)
 CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
 
@@ -60,3 +61,37 @@ def display_view_menu():
 def prompt_for_view_menu_choice():
     choice = input("Enter your choice: ")
     return choice
+
+def display_categories(categories):
+    print("Select a category:")
+    for i, category in enumerate(categories, start=1):
+        print(f"{i}. {category}")
+
+def prompt_for_category_selection(categories):
+    while True:
+        choice = input("Enter the number of the category you want to view: ")
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(categories):
+                return categories[choice - 1]
+            else:
+                print("Invalid choice. Please select a valid option.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+def display_months(months):
+    print("Select a month:")
+    for i, month in enumerate(months, start=1):
+        print(f"{i}. {month}")
+
+def prompt_for_month_selection(months):
+    while True:
+        choice = input("Enter the number of the month you want to view: ")
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(months):
+                return months[choice - 1]
+            else:
+                print("Invalid choice. Please select a valid option.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
