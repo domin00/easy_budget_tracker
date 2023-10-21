@@ -68,10 +68,22 @@ def insert_transactions(dataframe):
         # Connect to the SQLite database
         conn = sqlite3.connect('data/database/my_bank_app.db')
 
-        # Use the to_sql method to insert the DataFrame into the "Transactions" table
-        dataframe.to_sql('Transactions', conn, if_exists='append', index=False)
+        # Loop through each row in the DataFrame and insert or remove duplicates
+        for index, row in dataframe.iterrows():
+            # Check if a transaction with the same values already exists in the database
+            query = f"SELECT * FROM Transactions WHERE Date = ? AND Description = ? AND Amount = ? AND Currency = ? AND Bank = ? AND Category = ?"
+            params = (row['Date'], row['Description'], row['Amount'], row['Currency'], row['Bank'], row['Category'])
+            cursor = conn.execute(query, params)
 
-        print("Data inserted into the 'Transactions' table successfully.")
+            # If no matching transaction is found, insert it into the database
+            if cursor.fetchone() is None:
+                row.to_frame().T.to_sql('Transactions', conn, if_exists='append', index=False)
+                print(f"Inserted transaction with ID {index} into the 'Transactions' table.")
+            else:
+                # Remove the duplicate entry
+                print(f"Transaction with ID {index} is a duplicate and has been removed.")
+
+        print("Data insertion completed.")
 
     except sqlite3.Error as e:
         print(f"Error: {e}")
@@ -79,6 +91,7 @@ def insert_transactions(dataframe):
     finally:
         # Close the database connection
         conn.close()
+        
 
 def get_all_transactions():
     try:
