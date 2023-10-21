@@ -51,3 +51,12 @@ def display_transactions(transactions):
     for index, transaction in transactions.iterrows():
         print(f"Transaction {index}:")
         display_transaction(transaction)
+
+def display_view_menu():
+    print("View Options:")
+    print("1. View by Category")
+    print("2. View by Month")
+
+def prompt_for_view_menu_choice():
+    choice = input("Enter your choice: ")
+    return choice
