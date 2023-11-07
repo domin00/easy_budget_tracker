@@ -59,13 +59,14 @@ def add_transactions():
                 elif category in supported_categories:
                     transactions.at[index, 'Category'] = category
                     break
-
-                elif supported_categories[int(category)] in category_ids.keys():
-                    transactions.at[index, 'Category'] = supported_categories[int(category)-1]
-                    break
-
+                
+                # TODO : under development
                 elif category == '0':
                     break_flag = 1
+                    break
+                
+                elif supported_categories[int(category)] in category_ids.keys():
+                    transactions.at[index, 'Category'] = supported_categories[int(category)-1]
                     break
 
                 else:
@@ -73,6 +74,7 @@ def add_transactions():
             
             if break_flag == 1:
                 print("Exiting category assignment.")
+                break
 
 
         # dataframe post-processing for database
