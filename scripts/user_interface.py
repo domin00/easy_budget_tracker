@@ -24,7 +24,7 @@ def specify_bank():
     return input("Source of Bank Statement [Bank Name]: ")
 
 def display_transaction(transaction):
-    print("Transaction Details:")
+    print("\nTransaction Details:")
     print(f"Date: {transaction['Date']}")
     print(f"Description: {transaction['Description']}")
     print(f"Amount: {transaction['Amount']:.2f}")
@@ -33,7 +33,9 @@ def display_transaction(transaction):
 def prompt_for_category(supported_categories):
     print("\n")
     for idx, category in enumerate(supported_categories):
-        print(idx+1, ": ", CATEGORY_MAP[category])
+        print(idx+1, ": ", category)
+
+    print("0: Exit")
 
     return input("Please specify the category for this transaction: ")
 
@@ -56,8 +58,9 @@ def display_transactions(transactions):
 
 def display_view_menu():
     print("View Options:")
-    print("1. View by Category")
-    print("2. View by Month")
+    print("1. View all transactions in Category")
+    print("2. View all transactions in Month")
+    print("3. View Summary")
 
 def prompt_for_view_menu_choice():
     choice = input("Enter your choice: ")
@@ -96,3 +99,16 @@ def prompt_for_month_selection(months):
                 print("Invalid choice. Please select a valid option.")
         except ValueError:
             print("Invalid input. Please enter a number.")
+
+def display_category_month_totals(category_month_totals):
+    if category_month_totals.empty:
+        print("No summary found.")
+        return
+
+    print("Monthly Category Summary:")
+    for index, row in category_month_totals.iterrows():
+        month = row['Month']
+        category_id = row['CategoryID']
+        total_amount = row['Amount']
+        print(f"Month: {month}, Category: {CATEGORY_MAP[category_id]}, Total Amount: {round(total_amount, 2)}")
+

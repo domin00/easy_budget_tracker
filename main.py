@@ -46,6 +46,8 @@ def add_transactions():
 
         for index, transaction in transactions.iterrows():
 
+            break_flag = 0
+
             while True:
                 user_interface.display_transaction(transaction)
                 category = user_interface.prompt_for_category(supported_categories)
@@ -58,8 +60,19 @@ def add_transactions():
                     transactions.at[index, 'Category'] = category
                     break
 
+                elif supported_categories[int(category)] in category_ids.keys():
+                    transactions.at[index, 'Category'] = supported_categories[int(category)-1]
+                    break
+
+                elif category == '0':
+                    break_flag = 1
+                    break
+
                 else:
                     print(f"'{category}' is not a supported category. Choose from: {', '.join(supported_categories)}")
+            
+            if break_flag == 1:
+                print("Exiting category assignment.")
 
 
         # dataframe post-processing for database
@@ -91,8 +104,7 @@ def view_transactions():
     elif choice == "2":
         view_all_by_month(transactions)
     elif choice == "3":
-        #view yearly summary where category vs month
-        return
+        sum_by_category(transactions)
     elif choice == "4":
         user_interface.display_transactions(transactions)
     else:
@@ -135,8 +147,10 @@ def sum_by_category(transactions):
 
     # specify daterange for desired summary
     
-    summed_transactions = transactions.groupby('CategoryID', 'Month').sum('Amount')
+    summed_transactions = transactions.groupby(['Month', 'CategoryID'])['Amount'].sum().reset_index()
     #group by month and categoryID to get summary
+
+    user_interface.display_category_month_totals(summed_transactions)
 
 
 
