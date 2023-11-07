@@ -87,9 +87,9 @@ def view_transactions():
     choice = user_interface.prompt_for_view_menu_choice()
 
     if choice == "1":
-        view_by_category(transactions)
+        view_all_by_category(transactions)
     elif choice == "2":
-        view_by_month(transactions)
+        view_all_by_month(transactions)
     elif choice == "3":
         #view yearly summary where category vs month
         return
@@ -98,7 +98,7 @@ def view_transactions():
     else:
         user_interface.display_error_message("Invalid choice. Please select a valid option.")
 
-def view_by_category(transactions):
+def view_all_by_category(transactions):
     # Get unique categories
     categories = transactions['CategoryID'].unique()
 
@@ -112,9 +112,9 @@ def view_by_category(transactions):
     # Display transactions for the selected category
     user_interface.display_transactions(category_transactions)
 
-def view_by_month(transactions):
+def view_all_by_month(transactions):
     # Extract months from the 'Date' column
-    transactions['Month'] = pd.to_datetime(transactions['Date']).dt.strftime('%Y-%m')
+    transactions['Month'] = pd.to_datetime(transactions['Date'], dayfirst=True).dt.strftime('%Y-%m')
 
     # Get unique months
     months = transactions['Month'].unique()
@@ -128,6 +128,19 @@ def view_by_month(transactions):
 
     # Display transactions for the selected month
     user_interface.display_transactions(month_transactions)
+
+def sum_by_category(transactions):
+    # Extract months from the 'Date' column
+    transactions['Month'] = pd.to_datetime(transactions['Date'], dayfirst=True).dt.strftime('%Y-%m')
+
+    # specify daterange for desired summary
+    
+    summed_transactions = transactions.groupby('CategoryID', 'Month').sum('Amount')
+    #group by month and categoryID to get summary
+
+
+
+
 
 
 

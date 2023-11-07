@@ -5,6 +5,7 @@ import json
 with open('data/categories.json', 'r') as file:
     supported_categories = json.load(file)
 CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
+CATEGORY_MAP['Uncategorized'] = 'Uncategorized'
 
 
 def display_welcome_message():
@@ -32,7 +33,7 @@ def display_transaction(transaction):
 def prompt_for_category(supported_categories):
     print("\n")
     for idx, category in enumerate(supported_categories):
-        print(idx+1, ": ", category)
+        print(idx+1, ": ", CATEGORY_MAP[category])
 
     return input("Please specify the category for this transaction: ")
 
@@ -65,7 +66,7 @@ def prompt_for_view_menu_choice():
 def display_categories(categories):
     print("Select a category:")
     for i, category in enumerate(categories, start=1):
-        print(f"{i}. {category}")
+        print(f"{i}. {CATEGORY_MAP[category]}")
 
 def prompt_for_category_selection(categories):
     while True:
