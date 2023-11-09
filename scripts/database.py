@@ -71,7 +71,7 @@ def insert_transactions(dataframe):
         # Loop through each row in the DataFrame and insert or remove duplicates
         for index, row in dataframe.iterrows():
             # Check if a transaction with the same values already exists in the database
-            query = f"SELECT * FROM Transactions WHERE Date = ? AND Description = ? AND Amount = ? AND Currency = ? AND Bank = ? AND Category = ?"
+            query = f"SELECT * FROM Transactions WHERE Date = ? AND Description = ? AND Amount = ? AND Currency = ? AND Bank = ? AND CategoryID = ?"
             params = (row['Date'], row['Description'], row['Amount'], row['Currency'], row['Bank'], row['Category'])
             cursor = conn.execute(query, params)
 
@@ -108,6 +108,32 @@ def get_all_transactions():
         conn.close()
 
         return transactions
+
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+
+    finally:
+        # Close the database connection
+        conn.close()
+
+def save_modified_transactions(transactions):
+    
+    try:
+    # Connect to the SQLite database
+        conn = sqlite3.connect('data/database/my_bank_app.db')
+
+        # Iterate through the modified DataFrame 
+        for index, row in transactions.iterrows():
+            transaction_id = row['TransactionID']
+            updated_category_id = row['CategoryID']
+
+            # If the CategoryID has been updated, execute an SQL UPDATE statement
+            query = f"UPDATE Transactions SET CategoryID = {updated_category_id} WHERE TransactionID = {transaction_id}"
+            conn.execute(query)
+
+        # Commit the changes to the database
+        conn.commit()
+        print("Data updated and saved to the database successfully.")
 
     except sqlite3.Error as e:
         print(f"Error: {e}")

@@ -38,6 +38,27 @@ def add_transactions():
     transactions = csv_processor.parse_csv(csv_file_path, bank_type)
     transactions = transactions.groupby(['Date', 'Description', 'Currency', 'Bank'], as_index=False)['Amount'].sum()
 
+    # add dummy categoryID column holding empty categories
+    transactions['CategoryID'] = None
+
+
+
+    # Store transaction list in the database
+    database.db_init()
+    database.insert_transactions(transactions)
+
+    user_interface.display_success_message("Transactions have been categorized and stored.")
+
+def add_categories_to_transactions():
+    transactions = database.get_all_transactions()
+    transactions = transactions[transactions['CategoryID'].isnull()]
+
+    # Find the lowest and highest date values
+    min_date = pd.to_datetime(transactions['Date'], format='%Y-%m-%d', dayfirst=True).min()
+    max_date = pd.to_datetime(transactions['Date'], format='%Y-%m-%d', dayfirst=True).max()
+    user_interface.display_minmax_date(min_date, max_date)
+    start_date, end_date = user_interface.select_transaction_range_prompt()
+    transactions = transactions[(transactions['Date'] >= start_date & transactions['Date'] <= end_date)]
 
     # List each transaction to the user for categorization
     with open('data/categories.json', 'r') as file:
@@ -53,11 +74,11 @@ def add_transactions():
                 category = user_interface.prompt_for_category(supported_categories)
 
                 if category == '':
-                    transactions.at[index, 'Category'] = "Uncategorized"
+                    transactions.at[index, 'CategoryID'] = "Uncategorized"
                     break
 
                 elif category in supported_categories:
-                    transactions.at[index, 'Category'] = category
+                    transactions.at[index, 'CategoryID'] = category_ids[category]
                     break
                 
                 # TODO : under development
@@ -66,7 +87,7 @@ def add_transactions():
                     break
                 
                 elif supported_categories[int(category)] in category_ids.keys():
-                    transactions.at[index, 'Category'] = supported_categories[int(category)-1]
+                    transactions.at[index, 'CategoryID'] = category
                     break
 
                 else:
@@ -78,18 +99,15 @@ def add_transactions():
 
 
         # dataframe post-processing for database
-        transactions = transactions[transactions['Category'] != "Uncategorized"]
+        transactions = transactions[transactions['CategoryID'] != "Uncategorized"]
 
-        transactions["CategoryID"] = transactions['Category'].map(category_ids)
+        transactions = transactions.dropna(subset=['CategoryID'])
 
-        transactions = transactions.drop("Category", axis = 1)
+    database.save_modified_transactions()
 
 
-    # Store transaction list in the database
-    database.db_init()
-    database.insert_transactions(transactions)
 
-    user_interface.display_success_message("Transactions have been categorized and stored.")
+
 
 def view_transactions():
     transactions = database.get_all_transactions()
@@ -176,6 +194,8 @@ def main():
         elif choice == "2":
             view_transactions()
         elif choice == "3":
+            add_categories_to_transactions()
+        elif choice == "0":
             user_interface.display_success_message("Goodbye!")
             break
         else:

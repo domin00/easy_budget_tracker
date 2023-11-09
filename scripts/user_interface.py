@@ -43,7 +43,7 @@ def display_menu():
     print("\nMain Menu:")
     print("1. Add New Transactions")
     print("2. View Past Transactions")
-    print("3. Exit")
+    print("0. Exit")
 
 def prompt_for_menu_choice():
     return input("Please select an option (1/2/3): ")
@@ -112,3 +112,10 @@ def display_category_month_totals(category_month_totals):
         total_amount = row['Amount']
         print(f"Month: {month}, Category: {CATEGORY_MAP[category_id]}, Total Amount: {round(total_amount, 2)}")
 
+def select_transaction_range_prompt():
+    start = input("Start date [DD.MM.YYYY]: ")
+    end   = input("End date [DD.MM.YYYY]: ") 
+    return start, end
+
+def display_minmax_date(min_date, max_date):
+    return print(f"Uncategorized transactions range from {min_date} to {max_date}.")
