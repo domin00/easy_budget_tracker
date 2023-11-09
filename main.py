@@ -146,7 +146,7 @@ def view_all_by_category(transactions):
 
 def view_all_by_month(transactions):
     # Extract months from the 'Date' column
-    transactions['Month'] = pd.to_datetime(transactions['Date'], dayfirst=True).dt.strftime('%Y-%m')
+    transactions['Month'] = pd.to_datetime(transactions['Date']).dt.strftime('%Y-%m')
 
     # Get unique months
     months = transactions['Month'].unique()

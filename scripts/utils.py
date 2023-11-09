@@ -11,7 +11,7 @@ def read_csv(path, bank):
     '''
     pd.options.mode.chained_assignment = None
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, sep=';')
 
     if bank == 'Santander':
 

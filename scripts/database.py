@@ -51,7 +51,7 @@ def db_init():
             Currency TEXT NOT NULL,
             Bank TEXT NOT NULL,
             Amount REAL NOT NULL,
-            CategoryID INTEGER NOT NULL,
+            CategoryID INTEGER,
             FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
             UNIQUE (Date, Description, Amount, Currency, Bank, CategoryID)
         )
@@ -72,17 +72,19 @@ def insert_transactions(dataframe):
         for index, row in dataframe.iterrows():
             # Check if a transaction with the same values already exists in the database
             query = f"SELECT * FROM Transactions WHERE Date = ? AND Description = ? AND Amount = ? AND Currency = ? AND Bank = ? AND CategoryID = ?"
-            params = (row['Date'], row['Description'], row['Amount'], row['Currency'], row['Bank'], row['Category'])
+            params = (row['Date'], row['Description'], row['Amount'], row['Currency'], row['Bank'], row['CategoryID'],)
             cursor = conn.execute(query, params)
 
             # If no matching transaction is found, insert it into the database
             if cursor.fetchone() is None:
-                row.to_frame().T.to_sql('Transactions', conn, if_exists='append', index=False)
+                insert_query = "INSERT INTO Transactions (Date, Description, Amount, Currency, Bank, CategoryID) VALUES (?, ?, ?, ?, ?, ?)"
+                conn.execute(insert_query, params)
                 print(f"Inserted transaction with ID {index} into the 'Transactions' table.")
             else:
                 # Remove the duplicate entry
                 print(f"Transaction with ID {index} is a duplicate and has been removed.")
 
+        conn.commit()
         print("Data insertion completed.")
 
     except sqlite3.Error as e:
