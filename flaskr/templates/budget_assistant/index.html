@@ -1,0 +1,33 @@
+<!-- transactions_list.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Transaction List</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>TransactionID</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Bank</th>
+        <th>Amount</th>
+        <th>Currency</th>
+        <th>CategoryID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for index, row in posts.iterrows() %}
+        <tr>
+          <td>{{ row['TransactionID'] }}</td>
+          <td>{{ row['Date'] }}</td>
+          <td>{{ row['Description'] }}</td>
+          <td>{{ row['Bank'] }}</td>
+          <td>{{ row['Amount'] }}</td>
+          <td>{{ row['Currency'] }}</td>
+          <td>{{ row['CategoryID'] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

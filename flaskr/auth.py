@@ -5,7 +5,6 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import hashlib
 
 from flaskr.db import get_db
 
@@ -28,7 +27,7 @@ def register():
             try:
                 db.execute(
                     "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    (username, generate_password_hash(password, 'pbkdf2')),
                 )
                 db.commit()
             except db.IntegrityError:
@@ -49,7 +48,7 @@ def login():
         error = None
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username, )
-        ).fetchone
+        ).fetchone()
 
         if user is None:
             error = 'Incorrect username.'
@@ -82,3 +81,12 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
