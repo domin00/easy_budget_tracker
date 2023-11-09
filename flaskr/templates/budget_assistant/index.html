@@ -2,8 +2,15 @@
 
 {% extends 'base.html' %}
 
+{% block header %}
+  <h1>{% block title %}Transaction List{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('budget_assistant.summary') }}">Show Expenses Summary</a>
+  {% endif %}
+{% endblock %}
+
+
 {% block content %}
-  <h2>Transaction List</h2>
   <table border="1">
     <thead>
       <tr>
@@ -17,7 +24,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for index, row in posts.iterrows() %}
+      {% for index, row in transactions.iterrows() %}
         <tr>
           <td>{{ row['TransactionID'] }}</td>
           <td>{{ row['Date'] }}</td>

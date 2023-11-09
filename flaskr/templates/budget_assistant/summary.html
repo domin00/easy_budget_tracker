@@ -1,0 +1,42 @@
+<!-- summary.html -->
+
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Transaction Summary{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('budget_assistant.index') }}">Show All Transactions</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+    <table border="1">
+        <thead>
+        <tr>
+            <th>CategoryID</th>
+            {% for month in summary_table.columns %}
+            <th>{{ month }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+            {% for category_id, values in summary_table.iterrows() %}
+              <tr>
+                <td>{{ category_id }}</td>
+                {% for month in summary_table.columns %}
+                  <td>{{ values[month] }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    Total
+                </td>
+                {% for total in totals %}
+                  <td>{{ total }}</td>
+                {% endfor %}
+            </tr>
+
+          </tbody>
+        </table>
+      {% endblock %}

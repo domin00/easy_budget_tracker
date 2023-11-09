@@ -58,7 +58,7 @@ def add_categories_to_transactions():
     max_date = pd.to_datetime(transactions['Date'], format='%Y-%m-%d', dayfirst=True).max()
     user_interface.display_minmax_date(min_date, max_date)
     start_date, end_date = user_interface.select_transaction_range_prompt()
-    transactions = transactions[(transactions['Date'] >= start_date & transactions['Date'] <= end_date)]
+    transactions = transactions[(transactions['Date'] >= start_date) & (transactions['Date'] <= end_date)]
 
     # List each transaction to the user for categorization
     with open('data/categories.json', 'r') as file:
@@ -86,7 +86,7 @@ def add_categories_to_transactions():
                     break_flag = 1
                     break
                 
-                elif supported_categories[int(category)] in category_ids.keys():
+                elif supported_categories[int(category)-1] in category_ids.keys():
                     transactions.at[index, 'CategoryID'] = category
                     break
 
@@ -99,11 +99,12 @@ def add_categories_to_transactions():
 
 
         # dataframe post-processing for database
+        # TODO delete uncategorized transactions
         transactions = transactions[transactions['CategoryID'] != "Uncategorized"]
 
         transactions = transactions.dropna(subset=['CategoryID'])
 
-    database.save_modified_transactions()
+    database.save_modified_transactions(transactions)
 
 
 
@@ -163,7 +164,7 @@ def view_all_by_month(transactions):
 
 def sum_by_category(transactions):
     # Extract months from the 'Date' column
-    transactions['Month'] = pd.to_datetime(transactions['Date'], dayfirst=True).dt.strftime('%Y-%m')
+    transactions['Month'] = pd.to_datetime(transactions['Date']).dt.strftime('%Y-%m')
 
     # specify daterange for desired summary
     

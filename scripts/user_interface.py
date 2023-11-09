@@ -43,6 +43,7 @@ def display_menu():
     print("\nMain Menu:")
     print("1. Add New Transactions")
     print("2. View Past Transactions")
+    print("3. Add categories")
     print("0. Exit")
 
 def prompt_for_menu_choice():
