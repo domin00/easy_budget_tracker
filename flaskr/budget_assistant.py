@@ -11,7 +11,7 @@ from scripts.database import *
 bp = Blueprint('budget_assistant', __name__)
 
 
-@bp.route('/')
+@bp.route('/transactions')
 def index():
     transactions = get_all_transactions()
     

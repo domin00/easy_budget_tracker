@@ -37,6 +37,9 @@ def create_app(test_config=None):
     
     from . import budget_assistant
     app.register_blueprint(budget_assistant.bp)
+    
+    from . import home
+    app.register_blueprint(home.bp)
     app.add_url_rule('/', endpoint='index')
 
     
