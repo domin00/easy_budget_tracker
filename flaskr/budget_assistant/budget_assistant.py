@@ -12,7 +12,7 @@ import base64
 
 from scripts.database import *
 
-bp = Blueprint('budget_assistant', __name__, template_folder='/Users/dominikcydzik/Desktop/personal_projects/easy_budget_tracker/flaskr/budget_assistant/templates')
+bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
 # Category label map
 with open('data/categories.json', 'r') as file:
