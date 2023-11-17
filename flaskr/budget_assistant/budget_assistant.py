@@ -1,5 +1,6 @@
+import os
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app
 )
 from werkzeug.exceptions import abort
 
@@ -15,7 +16,8 @@ from scripts.database import *
 bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
 # Category label map
-with open('flaskr/static/categories.json', 'r') as file:
+file_path = os.path.join(current_app.static_folder, 'categories.json')
+with open(file_path, 'r') as file:
     supported_categories = json.load(file)
 CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
