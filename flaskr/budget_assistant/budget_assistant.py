@@ -15,11 +15,6 @@ from scripts.database import *
 
 bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
-# Category label map
-file_path = os.path.join(current_app.static_folder, 'categories.json')
-with open(file_path, 'r') as file:
-    supported_categories = json.load(file)
-CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
 @bp.route('/budget_assistant/start')
 def index():
@@ -30,6 +25,7 @@ def index():
 @login_required
 def transactions():
     transactions = get_all_transactions()
+    CATEGORY_MAP = load_category_map()
     transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
     
     return render_template('transactions.html', transactions= round(transactions, 2))
@@ -47,7 +43,7 @@ def summary():
     return render_template('summary.html', summary_table=summary_table, totals=totals)#, plot_url=plot_url)
 
 def process_transactions(transactions):
-
+    CATEGORY_MAP = load_category_map()
     transactions['Month'] = pd.to_datetime(transactions['Date']).dt.strftime('%Y-%m')
     transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
     # transactions['Amount'] = round(transactions['Amount'], 2)
@@ -82,3 +78,14 @@ def generate_line_plot(summary_table):
     plt.close()
     
     return plot_url
+
+
+def load_category_map():
+
+    # Category label map
+    file_path = os.path.join(current_app.static_folder, 'categories.json')
+    with open(file_path, 'r') as file:
+        supported_categories = json.load(file)
+    CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
+
+    return CATEGORY_MAP
