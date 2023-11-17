@@ -15,7 +15,7 @@ from scripts.database import *
 bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
 # Category label map
-with open('static/categories.json', 'r') as file:
+with open('flaskr/static/categories.json', 'r') as file:
     supported_categories = json.load(file)
 CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
