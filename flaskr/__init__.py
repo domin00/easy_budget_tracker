@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from . import db
 from . import auth
-from . import budget_assistant
+from .budget_assistant import budget_assistant
 from . import home
 
 def create_app(test_config=None):

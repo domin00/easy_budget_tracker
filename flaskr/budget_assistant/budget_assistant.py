@@ -12,21 +12,27 @@ import base64
 
 from scripts.database import *
 
-bp = Blueprint('budget_assistant', __name__)
+bp = Blueprint('budget_assistant', __name__, template_folder='/Users/dominikcydzik/Desktop/personal_projects/easy_budget_tracker/flaskr/budget_assistant/templates')
 
 # Category label map
 with open('data/categories.json', 'r') as file:
     supported_categories = json.load(file)
 CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
-
-@bp.route('/transactions')
+@bp.route('/budget_assistant/start')
 def index():
-    transactions = get_all_transactions()
-    
-    return render_template('budget_assistant/transactions.html', transactions=transactions)
 
-@bp.route('/summary', methods=('GET', 'POST'))
+    return render_template('start.html')
+
+@bp.route('/budget_assistant/transactions')
+@login_required
+def transactions():
+    transactions = get_all_transactions()
+    transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
+    
+    return render_template('transactions.html', transactions= round(transactions, 2))
+
+@bp.route('/budget_assistant/summary', methods=('GET', 'POST'))
 @login_required
 def summary():
     transactions = get_all_transactions()
@@ -36,7 +42,7 @@ def summary():
     # plot_url = generate_line_plot(summary_table)
     
     # Pass the summary_table to the template
-    return render_template('budget_assistant/summary.html', summary_table=summary_table, totals=totals)#, plot_url=plot_url)
+    return render_template('summary.html', summary_table=summary_table, totals=totals)#, plot_url=plot_url)
 
 def process_transactions(transactions):
 

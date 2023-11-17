@@ -1,15 +1,10 @@
 <!-- summary.html -->
 
-{% extends 'base.html' %}
+{% extends 'start.html' %}
 
-{% block header %}
-  <h1>{% block title %}Transaction Summary{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('budget_assistant.index') }}">Show All Transactions</a>
-  {% endif %}
-{% endblock %}
 
 {% block content %}
+<h2>Summary Table</h2>
     <table border="1">
         <thead>
         <tr>
