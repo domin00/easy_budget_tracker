@@ -35,7 +35,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
 
 
-    app.register_blueprint(budget_assistant.bp)
+    app.register_blueprint(budget_assistant.bp, url_prefix='/budget_assistant')
 
 
     app.register_blueprint(home.bp)

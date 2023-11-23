@@ -1,18 +1,30 @@
 import functools
+from wtforms import Form, BooleanField, StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo
+from flask_wtf import FlaskForm
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+# Create the registration form class
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+    form = RegistrationForm()
     if request.method == 'POST':
+        
         username = request.form['username']
         password = request.form['password']
         db = get_db()
@@ -37,7 +49,7 @@ def register():
 
         flash(error)
 
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', form = form)
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():

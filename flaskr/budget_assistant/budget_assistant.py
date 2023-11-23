@@ -16,12 +16,12 @@ from scripts.database import *
 bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
 
-@bp.route('/budget_assistant/start')
+@bp.route('/start')
 def index():
 
-    return render_template('start.html')
+    return render_template('ba_landing_page.html')
 
-@bp.route('/budget_assistant/transactions')
+@bp.route('/transactions')
 @login_required
 def transactions():
     transactions = get_all_transactions()
@@ -30,7 +30,7 @@ def transactions():
     
     return render_template('transactions.html', transactions= round(transactions, 2))
 
-@bp.route('/budget_assistant/summary', methods=('GET', 'POST'))
+@bp.route('/summary', methods=('GET', 'POST'))
 @login_required
 def summary():
     transactions = get_all_transactions()

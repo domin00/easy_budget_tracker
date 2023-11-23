@@ -3,7 +3,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Budgeting Assistant App{% endblock %}</h1>
+  <h1><a href="{{ url_for('budget_assistant.index') }}">{% block title %}Budgeting Assistant App{% endblock %}</a></h1>
   {% if g.user %}
     <a class="action" href=''>Upload Bank Statement</a>
     <a class="action" href="{{ url_for('budget_assistant.transactions') }}">Show All Transactions</a>
