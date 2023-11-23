@@ -27,8 +27,14 @@
       </li>
       
       {% if g.user %}
-        <li><span>{{ g.user['username'] }}</span></li>
-        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropbtn">{{ g.user['username'] }}</a>
+          <div class="dropdown-content">
+            <a href="{{ url_for('auth.logout') }}">Log Out</a>
+            <!-- Add more project links as needed -->
+          </div>
+        </li>
+
       {% else %}
         <!-- <li><a href="{{ url_for('auth.register') }}">Register</a></li> -->
         <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
