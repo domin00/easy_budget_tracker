@@ -1,6 +1,6 @@
 import os
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app, session
 )
 from werkzeug.exceptions import abort
 
@@ -12,6 +12,8 @@ from io import BytesIO
 import base64
 
 from scripts.database import *
+from scripts.csv_processor import *
+from .ba_forms import *
 
 bp = Blueprint('budget_assistant', __name__, template_folder='ba_templates')
 
@@ -89,3 +91,50 @@ def load_category_map():
     CATEGORY_MAP = {index+1: category for index, category in enumerate(supported_categories)}
 
     return CATEGORY_MAP
+
+@bp.route('/upload_statement', methods=('GET', 'POST'))
+def upload_statement():
+    form = uploadForm()
+
+    if form.validate_on_submit():
+        try:
+            # Check if 'uploaded_data' already exists in session and remove it
+            if 'uploaded_data' in session:
+                del session['uploaded_data']
+            # Process the uploaded file and bank selection
+            file = form.file.data
+            bank = form.bank_selection.data
+
+            # Add your processing logic here
+            # Read the CSV file into a Pandas DataFrame
+            df = parse_csv(file, bank)
+            # df = pd.read_csv(file, encoding='unicode_escape', sep=';')
+
+            # Convert DataFrame to dictionary and store in session
+            # session['uploaded_data'] = df.to_dict()
+
+            flash('File uploaded successfully!')
+            
+            return redirect(url_for('budget_assistant.upload_statement'))
+        
+        except Exception as e:
+            flash(f'Error processing the file: {str(e)}')
+
+    return render_template('upload_statement.html', form=form)
+
+@bp.route('/process_statement')
+def process_statement():
+    # Retrieve the DataFrame from the session
+    df_dict = session.get('uploaded_data')
+
+    if df_dict:
+        # Convert the dictionary back to a DataFrame
+        df = pd.DataFrame.from_dict(df_dict)
+
+        # Perform further processing with the DataFrame
+        # ...
+
+        return render_template('budget_assistant/process_statement.html', data=df.to_html())
+    else:
+        flash('No data found in session. Upload a file first.')
+        return redirect(url_for('budget_assistant.upload_statement'))
