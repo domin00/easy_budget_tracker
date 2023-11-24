@@ -5,7 +5,7 @@
 {% block header %}
   <h1><a href="{{ url_for('budget_assistant.index') }}">{% block title %}Budgeting Assistant App{% endblock %}</a></h1>
   {% if g.user %}
-    <a class="action" href=''>Upload Bank Statement</a>
+    <a class="action" href="{{ url_for('budget_assistant.upload_statement') }}">Upload Bank Statement</a>
     <a class="action" href="{{ url_for('budget_assistant.transactions') }}">Show All Transactions</a>
     <a class="action" href="{{ url_for('budget_assistant.summary') }}">Show Expenses Summary</a>
   {% endif %}
