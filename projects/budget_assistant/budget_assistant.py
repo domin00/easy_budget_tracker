@@ -4,8 +4,8 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from projects.auth import login_required
+from projects.db import get_db
 import json
 import matplotlib.pyplot as plt
 from io import BytesIO
