@@ -3,6 +3,8 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app, session
 )
 from werkzeug.exceptions import abort
+import datetime as dt
+from forex_python.converter import CurrencyRates
 
 from projects.auth import login_required
 from projects.db import get_db
@@ -23,12 +25,30 @@ def index():
 
     return render_template('ba_landing_page.html')
 
-@bp.route('/transactions')
+@bp.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
-    transactions = get_all_transactions()
+    
     CATEGORY_MAP = load_category_map()
+    transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
     transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
+    transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
+    
+    if request.method == 'POST':
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+
+        if not end_date:
+            end_date = dt.date.today()
+            
+        if start_date and end_date:
+            start_date = pd.to_datetime(start_date)
+            end_date = pd.to_datetime(end_date)
+    
+            transactions = transactions[(pd.to_datetime(transactions['Date']) >= start_date) & (pd.to_datetime(transactions['Date']) <= end_date)]
+
+            return render_template('transactions.html', transactions=round(transactions, 2))
+
     
     return render_template('transactions.html', transactions= round(transactions, 2))
 
@@ -138,3 +158,24 @@ def process_statement():
     else:
         flash('No data found in session. Upload a file first.')
         return redirect(url_for('budget_assistant.upload_statement'))
+    
+
+def convert_to_base(row):
+    # Define the base currency (assuming it's CHF, change it accordingly)
+    base_currency = 'CHF'
+
+    # Create a CurrencyRates object
+    c = CurrencyRates()
+
+    try:
+        # Get the exchange rate for the specified date and currency
+        exchange_rate = c.get_rate(row['Currency'], base_currency, row['Date'])
+
+        # Convert the price to CHF
+        true_amount = row['Amount'] * exchange_rate
+        return round(true_amount, 2)  # Rounding to 2 decimal places
+
+    except Exception as e:
+        # Handle exceptions (e.g., missing exchange rate data)
+        print(f"Error converting currency: {e}")
+        return None
