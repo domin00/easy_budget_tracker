@@ -28,11 +28,18 @@ def index():
 @bp.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
-    
+
     CATEGORY_MAP = load_category_map()
-    transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
-    transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
-    transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
+
+    if session.get('transactions'):
+        transactions = session.get('transactions')
+
+    else:
+        transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
+        transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
+        transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
+        session['transactions'] = transactions
+    
     
     if request.method == 'POST':
         start_date = request.form.get('start_date')
@@ -45,9 +52,9 @@ def transactions():
             start_date = pd.to_datetime(start_date)
             end_date = pd.to_datetime(end_date)
     
-            transactions = transactions[(pd.to_datetime(transactions['Date']) >= start_date) & (pd.to_datetime(transactions['Date']) <= end_date)]
+            transactions_filtered = transactions[(pd.to_datetime(transactions['Date']) >= start_date) & (pd.to_datetime(transactions['Date']) <= end_date)]
 
-            return render_template('transactions.html', transactions=round(transactions, 2))
+            return render_template('transactions.html', transactions=round(transactions_filtered, 2))
 
     
     return render_template('transactions.html', transactions= round(transactions, 2))
@@ -55,7 +62,16 @@ def transactions():
 @bp.route('/summary', methods=('GET', 'POST'))
 @login_required
 def summary():
-    transactions = get_all_transactions()
+    CATEGORY_MAP = load_category_map()
+
+    if session.get('transactions'):
+        transactions = session.get('transactions')
+
+    else:
+        transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
+        transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
+        transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
+        session['transactions'] = transactions
 
     summary_table, totals = process_transactions(transactions)
 
@@ -72,7 +88,7 @@ def process_transactions(transactions):
     
     # Group transactions by Month and CategoryID, summing up Amount
     # Create a summary table with CategoryID as rows, Month as columns, and sum of Amount as values
-    summary_table = pd.pivot_table(transactions, values='Amount', index='Category', columns='Month', aggfunc='sum', fill_value=0)
+    summary_table = pd.pivot_table(transactions, values='True Amount', index='Category', columns='Month', aggfunc='sum', fill_value=0)
     summary_table = round(summary_table, 2)
     totals = round(summary_table.sum(axis=0), 2)
 
@@ -169,7 +185,9 @@ def convert_to_base(row):
 
     try:
         # Get the exchange rate for the specified date and currency
-        exchange_rate = c.get_rate(row['Currency'], base_currency, row['Date'])
+        date = pd.to_datetime(row['Date'])
+        date_time = dt.datetime.combine(date, dt.datetime.min.time())
+        exchange_rate = c.get_rate(row['Currency'], base_currency, date_time)
 
         # Convert the price to CHF
         true_amount = row['Amount'] * exchange_rate

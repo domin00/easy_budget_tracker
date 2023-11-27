@@ -11,7 +11,7 @@ def read_csv(path, bank):
     '''
     pd.options.mode.chained_assignment = None
 
-    df = pd.read_csv(path, encoding='unicode_escape', sep=';')
+    
 
     if bank == 'Santander':
 
@@ -34,6 +34,7 @@ def read_csv(path, bank):
         df2['Amount'] = df2['Amount'].str.replace(',', '.')
 
     elif bank == 'UBS':
+        df = pd.read_csv(path, encoding='unicode_escape', sep=';')
         
         # only copy key columns
         df2 = df.iloc[:, [3, 4, 6]]
@@ -46,17 +47,37 @@ def read_csv(path, bank):
 
 
     elif bank == 'Revolut':
+        df = pd.read_csv(path, encoding='unicode_escape', sep=',')
+        df = df[df['Amount'] < 0]
+        df = df[df['Product'] == 'Current']
+        df.loc[df['Type'] == 'EXCHANGE', 'Amount'] = 0
+        df['Amount'] = df['Amount'].abs()
+        df['Amount'] = df['Amount'] + df['Fee']
+        df['Date'] = pd.to_datetime(df['Started Date']).dt.date
 
-        df2 = None
+        selected_columns = ['Date', 'Amount', 'Description', 'Currency']
+        df2 = df[selected_columns].copy()
 
-        df2.loc[:,'Currency'] = 'PLN'
+        # df2.loc[:,'Currency'] = 'PLN'
         df2.loc[:,'Bank'] = 'Revolut'
+
+    elif bank == 'UBS Main':
+        df = pd.read_csv(path, encoding='unicode_escape', sep=';', skiprows=9)
+        df['Date'] = df['Trade date']
+        df['Amount'] = df['Debit'].abs()
+        df['Description'] = df['Description1']
+
+        selected_columns = ['Date', 'Amount', 'Description', 'Currency']
+        df2 = df[selected_columns].copy()
+
+        df2.loc[:,'Bank'] = 'UBS'
 
     # unify date formatting
 
 
     # remove useless rows without any transaction amounts
     df2 = df2.dropna(subset=['Amount'])
+    df2 = df2[df2['Amount'] != 0]
 
     # remove positive transactions (incoming transfers) to not be accounted in expenses --> accumulate seperately as "INCOME"
     # add the absolut value of transactions (meaning expenses are not a negative number but a positive one that sums up)
