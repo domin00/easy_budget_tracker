@@ -20,36 +20,36 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
 
-@bp.route('/register', methods=('GET', 'POST'))
-def register():
-    form = RegistrationForm()
-    if request.method == 'POST':
+# @bp.route('/register', methods=('GET', 'POST'))
+# def register():
+#     form = RegistrationForm()
+#     if request.method == 'POST':
         
-        username = request.form['username']
-        password = request.form['password']
-        db = get_db()
-        error = None
+#         username = request.form['username']
+#         password = request.form['password']
+#         db = get_db()
+#         error = None
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+#         if not username:
+#             error = 'Username is required.'
+#         elif not password:
+#             error = 'Password is required.'
 
-        if error is None:
-            try:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password, 'pbkdf2')),
-                )
-                db.commit()
-            except db.IntegrityError:
-                error = f"User {username} is already registered."
-            else:
-                return redirect(url_for("auth.login"))
+#         if error is None:
+#             try:
+#                 db.execute(
+#                     "INSERT INTO user (username, password) VALUES (?, ?)",
+#                     (username, generate_password_hash(password, 'pbkdf2')),
+#                 )
+#                 db.commit()
+#             except db.IntegrityError:
+#                 error = f"User {username} is already registered."
+#             else:
+#                 return redirect(url_for("auth.login"))
 
-        flash(error)
+#         flash(error)
 
-    return render_template('auth/register.html', form = form)
+#     return render_template('auth/register.html', form = form)
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():

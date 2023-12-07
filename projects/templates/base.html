@@ -2,42 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}Welcome!{% endblock %}</title>
+  <title>{% block title %}The Budget Assistant{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <nav>
-    <h1>dominikcydzik</h1>
+    <h1>The Budget Assistant</h1>
     <ul>
-      <li><a href="{{ url_for('home.index') }}">Home</a></li>
-      <li class="dropdown">
-        <a href="#" class="dropbtn">Projects</a>
-        <div class="dropdown-content">
-          <a href="{{ url_for('budget_assistant.index') }}">Budget Assistant</a>
-          <!-- Add more project links as needed -->
-        </div>
-      </li>
-
-      <li class="dropdown">
-        <a href="#" class="dropbtn">Blog</a>
-        <div class="dropdown-content">
-          <!-- Add more blog links as needed -->
-        </div>
-      </li>
+      <li><a href="{{ url_for('budget_assistant.index') }}">Home</a></li>
+      
+      <li><a class="action" href="{{ url_for('budget_assistant.upload_statement_free') }}">Upload Bank Statement</a></li>
       
       {% if g.user %}
         <li class="dropdown">
           <a href="#" class="dropbtn">{{ g.user['username'] }}</a>
           <div class="dropdown-content">
+            <a class="action" href="{{ url_for('budget_assistant.transactions') }}">Show All Transactions</a>
+            <a class="action" href="{{ url_for('budget_assistant.summary') }}">Show Expenses Summary</a>
             <a href="{{ url_for('auth.logout') }}">Log Out</a>
             <!-- Add more project links as needed -->
           </div>
         </li>
 
-      {% else %}
-        <!-- <li><a href="{{ url_for('auth.register') }}">Register</a></li> -->
-        <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
       {% endif %}
     </ul>
   </nav>
