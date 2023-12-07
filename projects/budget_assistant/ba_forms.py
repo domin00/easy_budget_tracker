@@ -14,6 +14,7 @@ class uploadForm(FlaskForm):
     )
     bank_selection = SelectField('Select Bank', choices=[
         ('UBS', 'UBS'),
+        ('UBS Main', 'UBS Main'),
         ('Revolut', 'Revolut'),
         ('Santander', 'Santander')
         # Add more banks as needed

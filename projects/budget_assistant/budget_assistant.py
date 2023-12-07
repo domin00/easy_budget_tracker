@@ -60,12 +60,16 @@ def load_category_map():
 @bp.route('/upload_statement_free', methods=('GET', 'POST'))
 def upload_statement_free():
     form = uploadForm()
+    
 
     if form.validate_on_submit():
         try:
             # Check if 'uploaded_data' already exists in session and remove it
-            if 'uploaded_data' in session:
-                del session['uploaded_data']
+            if 'processed_transactions' in session:
+                del session['processed_transactions']
+            if 'transactions' in session:
+                del session['transactions']
+            
             # Process the uploaded file and bank selection
             file = form.file.data
             bank = form.bank_selection.data
@@ -73,7 +77,6 @@ def upload_statement_free():
             # Add your processing logic here
             # Read the CSV file into a Pandas DataFrame
             df = parse_csv(file, bank)
-            # df = pd.read_csv(file, encoding='unicode_escape', sep=';')
 
             # Convert DataFrame to dictionary and store in session
             session['uploaded_df'] = df.to_dict('list')
@@ -81,30 +84,62 @@ def upload_statement_free():
 
             flash('File uploaded successfully!')
             
-            return redirect(url_for('budget_assistant.transactions_free'))
+            return redirect(url_for('budget_assistant.assign_categories'))
         
         except Exception as e:
             flash(f'Error processing the file: {str(e)}')
 
     return render_template('upload_statement.html', form=form)
 
+@bp.route('/assign_categories', methods=['GET', 'POST'])
+def assign_categories():
+    CATEGORIES = load_category_map()
+    categories = list(CATEGORIES.values())
+
+    if session.get('uploaded_df'):
+        df_dict = session.get('uploaded_df')
+        transactions = pd.DataFrame(df_dict)
+
+    else:
+        flash('No transactions ')
+
+    if request.method == 'POST':
+        # Get category assignments from the form
+        category_assignments = request.form.getlist('category_assignment')
+
+        # Assign categories to the DataFrame
+        transactions['Category'] = category_assignments
+
+        # Save transactions in session
+        transactions_dict = transactions.to_dict('list')
+        
+        session['transactions'] = transactions_dict
+
+        # Redirect to the next template (replace 'next_template' with the actual template name)
+        return redirect(url_for('budget_assistant.transactions_free'))
+
+    # Render the template with transactions and category options
+    return render_template('assign_categories.html', transactions=round(transactions, 2), categories=categories)
+
+
 @bp.route('/transactions_free', methods=['GET', 'POST'])
 def transactions_free():
 
     CATEGORY_MAP = load_category_map()
 
-    if session.get('transactions'):
+    if session.get('processed_transactions'):
+        transactions_dict = session.get('processed_transactions')
+        transactions = pd.DataFrame(transactions_dict)
+
+    elif session.get('transactions'):
         transactions_dict = session.get('transactions')
         transactions = pd.DataFrame(transactions_dict)
 
-    else:
-        transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
-        transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
         transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
 
         transactions_dict = transactions.to_dict('list')
         
-        session['transactions'] = transactions_dict
+        session['processed_transactions'] = transactions_dict
     # TRANSACTIONS = transactions
     
     
@@ -130,7 +165,7 @@ def transactions_free():
 @bp.route('/process_statement')
 def process_statement():
     # Retrieve the DataFrame from the session
-    df_dict = session.get('uploaded_data')
+    df_dict = session.get('uploaded_df')
 
     if df_dict:
         # Convert the dictionary back to a DataFrame
