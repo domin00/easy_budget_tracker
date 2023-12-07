@@ -76,17 +76,55 @@ def upload_statement_free():
             # df = pd.read_csv(file, encoding='unicode_escape', sep=';')
 
             # Convert DataFrame to dictionary and store in session
-            # session['uploaded_data'] = df.to_dict()
+            session['uploaded_df'] = df.to_dict('list')
+            print(df.keys())
 
             flash('File uploaded successfully!')
             
-            return redirect(url_for('budget_assistant.upload_statement'))
+            return redirect(url_for('budget_assistant.transactions_free'))
         
         except Exception as e:
             flash(f'Error processing the file: {str(e)}')
 
     return render_template('upload_statement.html', form=form)
 
+@bp.route('/transactions_free', methods=['GET', 'POST'])
+def transactions_free():
+
+    CATEGORY_MAP = load_category_map()
+
+    if session.get('transactions'):
+        transactions_dict = session.get('transactions')
+        transactions = pd.DataFrame(transactions_dict)
+
+    else:
+        transactions = get_all_transactions()  # Assuming get_all_transactions retrieves all transactions
+        transactions['Category'] = transactions['CategoryID'].map(CATEGORY_MAP)
+        transactions['True Amount'] = transactions.apply(convert_to_base, axis=1)
+
+        transactions_dict = transactions.to_dict('list')
+        
+        session['transactions'] = transactions_dict
+    # TRANSACTIONS = transactions
+    
+    
+    if request.method == 'POST':
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+
+        if not end_date:
+            end_date = dt.date.today()
+            
+        if start_date and end_date:
+            start_date = pd.to_datetime(start_date)
+            end_date = pd.to_datetime(end_date)
+    
+            transactions_filtered = transactions[(pd.to_datetime(transactions['Date']) >= start_date) & (pd.to_datetime(transactions['Date']) <= end_date)]
+
+            return render_template('transactions.html', transactions=round(transactions_filtered, 2))
+
+    
+    return render_template('transactions.html', transactions= round(transactions, 2))
 
 
 @bp.route('/process_statement')
@@ -137,7 +175,6 @@ def convert_to_base(row):
 
     
 # Routes for private use of the app, not public simplified.
-TRANSACTIONS = None
 
 @bp.route('/transactions', methods=['GET', 'POST'])
 @login_required
@@ -182,7 +219,6 @@ def transactions():
 def summary():
     CATEGORY_MAP = load_category_map()
 
-    transactions = TRANSACTIONS
     if session.get('transactions'):
         transactions_dict = session.get('transactions')
         transactions = pd.DataFrame(transactions_dict)
