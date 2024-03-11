@@ -47,6 +47,32 @@ def main():
             hide_index=True)
         
         st.write(f"Total transactions for period: {len(transactions_df)}")
+        annotation_key = st.button("Annotate Data")
+
+        if annotation_key:
+            transactions_df['Category'] = None
+            st.data_editor(
+                transactions_df,
+                hide_index=True,
+                use_container_width=True,
+                disabled=["Date", "Description", "Amount", "Currency", "Bank"],
+                column_config={
+                    "Category": st.column_config.SelectboxColumn(
+                        "Category",
+                        help = "Transaction category",
+                        options = [
+                            
+                        ]
+                    )
+                }
+            )
+
+
+            save_dataset = st.button("Save!")
+
+            if save_dataset:
+                None
+
 
 
 if __name__ == "__main__":
