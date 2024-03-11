@@ -41,20 +41,13 @@ def main():
 
         # Display transactions table
         st.subheader("Transactions")
-        st.dataframe(transactions_df, width=800)
+        st.dataframe(
+            transactions_df, 
+            width=800,
+            hide_index=True)
+        
+        st.write(f"Total transactions for period: {len(transactions_df)}")
 
-        # # Category filter
-        # categories = transactions_df['Category'].unique().tolist()
-        # categories.insert(0, 'All')
-
-        # selected_category = st.selectbox("Select category", categories)
-
-        # # Filter transactions by category
-        # filtered_df = filter_by_category(transactions_df, selected_category)
-
-        # # Display filtered transactions
-        # st.subheader("Filtered Transactions")
-        # st.write(filtered_df)
 
 if __name__ == "__main__":
     main()
