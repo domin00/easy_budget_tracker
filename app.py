@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 from scripts import csv_processor
+from scripts.app_helper import save_labeled_transactions
 
 
 # Function to process CSV based on date range and display transactions
@@ -65,28 +66,23 @@ def main():
                 )
             }
         )
+        transactions_df = edited_df
+        
+        save_dataset = st.button("Save! [Developer Only Use]")
 
-
-        save_dataset = st.button("Save!")
+        if transactions_df['Category'].isnull().any():
+            st.warning("Fill out all the category labels before enabling transaction analysis.")
+        else:
+            analyze = st.button("Analyze Transactions")
 
         if save_dataset:
-            file_path = 'data\\revolut.csv'
+            file_path = f'data\\{bank}.csv'
+            save_labeled_transactions(transactions_df, file_path)
 
-            transactions_df = edited_df
+        if analyze:
+            with st.container(border=True):
+                st.write(f"**Total Transactions:** {len(transactions_df)}")
 
-            # Check if the file already exists
-            if os.path.exists(file_path):
-                # Load the existing CSV file
-                existing_data = pd.read_csv(file_path)
-
-                # Append the new DataFrame to the existing one
-                updated_data = existing_data.append(transactions_df, ignore_index=True)
-
-                # Save the updated DataFrame to the same file
-                updated_data.to_csv(file_path, index=False)
-            else:
-                # If the file doesn't exist, save the DataFrame as a new file
-                transactions_df.to_csv(file_path, index=False)
 
 
 
