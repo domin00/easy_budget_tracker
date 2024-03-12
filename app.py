@@ -30,7 +30,7 @@ def main():
     st.title("CSV Transactions Processor")
 
     # Load the JSON list from the file
-    with open('data\\categories.json', 'r') as file:
+    with open(os.path.join("data", 'categories.json'), 'r') as file:
         categories = json.load(file)
 
     # Upload CSV file
