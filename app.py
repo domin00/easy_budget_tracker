@@ -1,8 +1,11 @@
 import json
 import streamlit as st
 import pandas as pd
+import os
 from datetime import datetime
+
 from scripts import csv_processor
+
 
 # Function to process CSV based on date range and display transactions
 def process_csv(file, bank, start_date, end_date):
@@ -11,6 +14,7 @@ def process_csv(file, bank, start_date, end_date):
     # Filter transactions based on date range
     mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
     filtered_df = df[mask]
+    filtered_df['Category'] = None
     
     return filtered_df
 
@@ -46,8 +50,8 @@ def main():
 
         # Display transactions table
         st.subheader("Transactions")
-        transactions_df['Category'] = None
-        st.data_editor(
+        
+        edited_df = st.data_editor(
             transactions_df,
             hide_index=True,
             use_container_width=True,
@@ -56,7 +60,8 @@ def main():
                 "Category": st.column_config.SelectboxColumn(
                     "Category",
                     help = "Transaction category",
-                    options = categories
+                    options = categories,
+                    required=True
                 )
             }
         )
@@ -65,7 +70,23 @@ def main():
         save_dataset = st.button("Save!")
 
         if save_dataset:
-            None
+            file_path = 'data\\revolut.csv'
+
+            transactions_df = edited_df
+
+            # Check if the file already exists
+            if os.path.exists(file_path):
+                # Load the existing CSV file
+                existing_data = pd.read_csv(file_path)
+
+                # Append the new DataFrame to the existing one
+                updated_data = existing_data.append(transactions_df, ignore_index=True)
+
+                # Save the updated DataFrame to the same file
+                updated_data.to_csv(file_path, index=False)
+            else:
+                # If the file doesn't exist, save the DataFrame as a new file
+                transactions_df.to_csv(file_path, index=False)
 
 
 
