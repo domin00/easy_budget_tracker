@@ -76,7 +76,8 @@ def main():
             analyze = st.button("Analyze Transactions")
 
         if save_dataset:
-            file_path = f'data\\{bank}.csv'
+            file_name = f"{bank}.csv"
+            file_path = os.path.join("data", file_name)
             save_labeled_transactions(transactions_df, file_path)
 
         if analyze:
