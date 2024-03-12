@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 import pandas as pd
 from datetime import datetime
@@ -23,6 +24,10 @@ def filter_by_category(df, category):
 def main():
     st.title("CSV Transactions Processor")
 
+    # Load the JSON list from the file
+    with open('data\\categories.json', 'r') as file:
+        categories = json.load(file)
+
     # Upload CSV file
     uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
     
@@ -41,37 +46,26 @@ def main():
 
         # Display transactions table
         st.subheader("Transactions")
-        st.dataframe(
-            transactions_df, 
-            width=800,
-            hide_index=True)
-        
-        st.write(f"Total transactions for period: {len(transactions_df)}")
-        annotation_key = st.button("Annotate Data")
-
-        if annotation_key:
-            transactions_df['Category'] = None
-            st.data_editor(
-                transactions_df,
-                hide_index=True,
-                use_container_width=True,
-                disabled=["Date", "Description", "Amount", "Currency", "Bank"],
-                column_config={
-                    "Category": st.column_config.SelectboxColumn(
-                        "Category",
-                        help = "Transaction category",
-                        options = [
-                            
-                        ]
-                    )
-                }
-            )
+        transactions_df['Category'] = None
+        st.data_editor(
+            transactions_df,
+            hide_index=True,
+            use_container_width=True,
+            disabled=["Date", "Description", "Amount", "Currency", "Bank"],
+            column_config={
+                "Category": st.column_config.SelectboxColumn(
+                    "Category",
+                    help = "Transaction category",
+                    options = categories
+                )
+            }
+        )
 
 
-            save_dataset = st.button("Save!")
+        save_dataset = st.button("Save!")
 
-            if save_dataset:
-                None
+        if save_dataset:
+            None
 
 
 
