@@ -1,4 +1,3 @@
-json
-streamlit
-pandas
-os
+streamlit==1.37.1
+pandas==2.2.2
+pytest

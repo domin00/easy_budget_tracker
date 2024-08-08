@@ -4,26 +4,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-from scripts import csv_processor
-from scripts.app_helper import save_labeled_transactions
+from scripts.csv_processor import parse_csv, process_csv
+from scripts.app_helper import save_labeled_transactions, filter_by_category
 
-
-# Function to process CSV based on date range and display transactions
-def process_csv(file, bank, start_date, end_date):
-    df = csv_processor.parse_csv(file, bank)
-    
-    # Filter transactions based on date range
-    mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
-    filtered_df = df[mask]
-    filtered_df['Category'] = None
-    
-    return filtered_df
-
-# Function to filter transactions based on category
-def filter_by_category(df, category):
-    if category == 'All':
-        return df
-    return df[df['Category'] == category]
 
 # Streamlit App
 def main():

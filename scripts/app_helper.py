@@ -20,3 +20,9 @@ def save_labeled_transactions(df, file_path):
         df.to_csv(file_path, index=False)
 
     st.success("Saved Succesfully")
+
+# Function to filter transactions based on category
+def filter_by_category(df, category):
+    if category == 'All':
+        return df
+    return df[df['Category'] == category]
