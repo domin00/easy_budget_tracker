@@ -1,0 +1,4 @@
+json
+streamlit
+pandas
+os
