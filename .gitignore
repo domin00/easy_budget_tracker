@@ -1,3 +1,4 @@
 data/*.csv
+data/labelled/
 venv/
 ai_workshop/sample_data/
