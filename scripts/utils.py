@@ -15,9 +15,22 @@ def read_csv(path, bank):
 
     if bank == 'Santander':
 
+        sant_df = pd.read_csv(path)
+
         # only copy key columns
-        df2 = df.iloc[: , [1, 2, 5]].copy()
+        df2 = sant_df.iloc[: , [1, 2, 5]].copy()
         df2.columns = ['Date','Description','Amount']
+
+        # write script to asign transaction method to each row based on if description contains a keyword
+        # Define a custom function to assign methods
+        def assign_method(description):
+            if 'PŁATNOŚĆ KARTĄ' in description:
+                return 'Card'
+            else:
+                return 'Transfer'
+
+        # Apply the custom function to each row in the Description column
+        df2['Method'] = df2['Description'].apply(assign_method)
 
         # remove clutter
         df2.loc[:,'Truncated Description'] = df2['Description'].str.extract(r'PLN(.*)')
