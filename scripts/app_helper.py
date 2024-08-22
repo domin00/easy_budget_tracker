@@ -2,24 +2,22 @@ import os
 import streamlit as st
 import pandas as pd
 
+from scripts.save_labels import save_df_to_csv
 
-def save_labeled_transactions(df, file_path):
+'''
+Python file to handle collections of streamlit app helping functions. No logic should be written here. 
+Code with logic should be called here through functions.
+Functions in this file should be written as wrappers, to deliver the logic functions in a decorated manner.
+'''
 
-    # Check if the file already exists
-    if os.path.exists(file_path):
-        # Load the existing CSV file
-        existing_data = pd.read_csv(file_path)
+def save_labeled_transactions(df):
 
-        # Append the new DataFrame to the existing one
-        updated_data = pd.concat([existing_data, df], ignore_index=True)
+    try:
+        save_df_to_csv(df)
+        st.success("Saved Succesfully")
 
-        # Save the updated DataFrame to the same file
-        updated_data.to_csv(file_path, index=False)
-    else:
-        # If the file doesn't exist, save the DataFrame as a new file
-        df.to_csv(file_path, index=False)
-
-    st.success("Saved Succesfully")
+    except:
+        st.warning("Failed to save CSV file.")
 
 # Function to filter transactions based on category
 def filter_by_category(df, category):
