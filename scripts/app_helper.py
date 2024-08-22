@@ -11,7 +11,7 @@ def save_labeled_transactions(df, file_path):
         existing_data = pd.read_csv(file_path)
 
         # Append the new DataFrame to the existing one
-        updated_data = existing_data.append(df, ignore_index=True)
+        updated_data = pd.concat([existing_data, df], ignore_index=True)
 
         # Save the updated DataFrame to the same file
         updated_data.to_csv(file_path, index=False)
