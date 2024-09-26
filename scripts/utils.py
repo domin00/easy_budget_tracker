@@ -46,18 +46,22 @@ def read_csv(path, bank):
 
 
     elif bank == 'Revolut':
+        # Read CSV and filter data
         df = pd.read_csv(path, encoding='unicode_escape', sep=',')
-        df = df[df['Amount'] < 0]
-        df = df[df['Product'] == 'Current']
+        df = df[(df['Amount'] < 0) & (df['Product'] == 'Current')]
+
+        # Process Amount
         df.loc[df['Type'] == 'EXCHANGE', 'Amount'] = 0
-        df['Amount'] = df['Amount'].abs()
-        df['Amount'] = df['Amount'] + df['Fee']
+        df['Amount'] = df['Amount'].abs() + df['Fee']
+
+        # Process Date
         df['Date'] = pd.to_datetime(df['Started Date']).dt.date
 
+        # Select and rename columns
         selected_columns = ['Date', 'Amount', 'Description', 'Currency']
         df2 = df[selected_columns].copy()
 
-        # df2.loc[:,'Currency'] = 'PLN'
+        # Add Bank information
         df2.loc[:,'Bank'] = 'Revolut'
 
     elif bank == 'UBS Main':
