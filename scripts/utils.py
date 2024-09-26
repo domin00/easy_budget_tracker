@@ -14,36 +14,22 @@ def read_csv(path, bank):
     
 
     if bank == 'Santander':
-
+        # Read CSV and select key columns
         sant_df = pd.read_csv(path)
+        df2 = sant_df.iloc[:, [1, 2, 5]].copy()
+        df2.columns = ['Date', 'Description', 'Amount']
 
-        # only copy key columns
-        df2 = sant_df.iloc[: , [1, 2, 5]].copy()
-        df2.columns = ['Date','Description','Amount']
+        # Assign transaction method
+        df2['Method'] = df2['Description'].apply(lambda x: 'Card' if 'PŁATNOŚĆ KARTĄ' in x else 'Transfer')
 
-        # write script to asign transaction method to each row based on if description contains a keyword
-        # Define a custom function to assign methods
-        def assign_method(description):
-            if 'PŁATNOŚĆ KARTĄ' in description:
-                return 'Card'
-            else:
-                return 'Transfer'
+        # Clean up description
+        df2['Description'] = df2['Description'].str.extract(r'PLN(.*)').fillna(df2['Description'])
 
-        # Apply the custom function to each row in the Description column
-        df2['Method'] = df2['Description'].apply(assign_method)
+        # Set additional information
+        df2['Currency'] = 'PLN'
+        df2['Bank'] = 'Santander'
 
-        # remove clutter
-        df2.loc[:,'Truncated Description'] = df2['Description'].str.extract(r'PLN(.*)')
-
-        # Fill NaN values with the original strings
-        df2['Truncated Description'].fillna(df2['Description'], inplace=True)
-        df2['Description'] = df2['Truncated Description']
-        del df2['Truncated Description']
-
-        df2.loc[:,'Currency'] = 'PLN'
-        df2.loc[:,'Bank'] = 'Santander'
-
-        # specific post-processing lines
+        # Format amount
         df2['Amount'] = df2['Amount'].str.replace(',', '.')
 
     elif bank == 'UBS':
