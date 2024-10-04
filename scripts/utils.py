@@ -29,20 +29,11 @@ def read_csv(path, bank):
         df2['Currency'] = 'PLN'
         df2['Bank'] = 'Santander'
 
-        # Format amount
-        df2['Amount'] = df2['Amount'].str.replace(',', '.')
-
-    elif bank == 'UBS':
-        df = pd.read_csv(path, encoding='unicode_escape', sep=';')
+        # Create new column classifying transaction as "Expense" or "Income" depending on the amount sign
+        # Convert 'Amount' column from string to float
+        df2['Amount'] = df2['Amount'].str.replace(',', '.').astype(float)
+        df2['Type'] = df2['Amount'].apply(lambda x: 'Expense' if x < 0 else 'Income')
         
-        # only copy key columns
-        df2 = df.iloc[:, [3, 4, 6]]
-        df2.columns = ['Date','Description','Amount']
-        # df2.loc[:,'Description'] = df2['Description'] + " - " + df2['Sector']
-        # del df2['Sector']
-
-        df2.loc[:,'Currency'] = 'CHF'
-        df2.loc[:,'Bank'] = 'UBS'
 
 
     elif bank == 'Revolut':
@@ -64,19 +55,6 @@ def read_csv(path, bank):
         # Add Bank information
         df2.loc[:,'Bank'] = 'Revolut'
 
-    elif bank == 'UBS Main':
-        df = pd.read_csv(path, encoding='unicode_escape', sep=';', skiprows=9)
-        df['Date'] = df['Trade date']
-        df['Amount'] = df['Debit'].abs()
-        df['Description'] = df['Description1']
-
-        selected_columns = ['Date', 'Amount', 'Description', 'Currency']
-        df2 = df[selected_columns].copy()
-
-        df2.loc[:,'Bank'] = 'UBS'
-
-    # unify date formatting
-
 
     # remove useless rows without any transaction amounts
     df2 = df2.dropna(subset=['Amount'])
@@ -85,6 +63,8 @@ def read_csv(path, bank):
     # remove positive transactions (incoming transfers) to not be accounted in expenses --> accumulate seperately as "INCOME"
     # add the absolut value of transactions (meaning expenses are not a negative number but a positive one that sums up)
     df2['Amount'] = df2['Amount'].apply(lambda x: abs(float(x)))
+
+    df2['Date'] = pd.to_datetime(df2['Date'], format='%d-%m-%Y', dayfirst=True).dt.date
 
     return df2
 
