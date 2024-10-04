@@ -1,5 +1,6 @@
 data/*.csv
 data/labelled/
+data/statements
 venv/
 ai_workshop/sample_data/
 data/database/
